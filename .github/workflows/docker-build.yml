@@ -1,0 +1,40 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    paths:
+      - "Dockerfile"
+      - "entrypoint.sh"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract ZAPRET_TAG from Dockerfile
+        id: extract_tag
+        run: |
+          ZAPRET_TAG=$(grep 'ARG ZAPRET_TAG=' Dockerfile | cut -d'=' -f2)
+          echo "ZAPRET_TAG=${ZAPRET_TAG}" >> $GITHUB_ENV
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ss-zapret2:${{ env.ZAPRET_TAG }}, ${{ secrets.DOCKERHUB_USERNAME }}/ss-zapret2:latest
+          platforms: linux/amd64,linux/arm64

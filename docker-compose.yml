@@ -1,0 +1,33 @@
+services:
+  ss-zapret2:
+    image: vernette/ss-zapret2:v0.7.6
+    container_name: zapret2-proxy
+    restart: unless-stopped
+    environment:
+      - SS_PORT=${SS_PORT}
+      - SS_PASSWORD=${SS_PASSWORD}
+      - SS_ENCRYPT_METHOD=${SS_ENCRYPT_METHOD}
+      - SS_TIMEOUT=${SS_TIMEOUT}
+      - SOCKS_PORT=${SOCKS_PORT}
+      - SS_VERBOSE=1
+    ports:
+      - "${SS_PORT}:${SS_PORT}/tcp"
+      - "${SS_PORT}:${SS_PORT}/udp"
+      - "${SOCKS_PORT}:${SOCKS_PORT}/tcp"
+      - "${SOCKS_PORT}:${SOCKS_PORT}/udp"
+    volumes:
+      - ./config:/opt/zapret2/config
+      - ./lua:/opt/zapret2/lua
+      - ./scripts/examples:/opt/zapret2/init.d/custom.d.examples.linux
+      - ./scripts/custom.d:/opt/zapret2/init.d/sysv/custom.d
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "nc -z localhost ${SS_PORT} && nc -z localhost ${SOCKS_PORT} || exit 1"
+      ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 3s
+    cap_add:
+      - NET_ADMIN
