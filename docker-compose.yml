@@ -11,10 +11,10 @@ services:
       - SOCKS_PORT=${SOCKS_PORT}
       - SS_VERBOSE=1
     ports:
-      - "${SS_PORT}:${SS_PORT}/tcp"
-      - "${SS_PORT}:${SS_PORT}/udp"
-      - "${SOCKS_PORT}:${SOCKS_PORT}/tcp"
-      - "${SOCKS_PORT}:${SOCKS_PORT}/udp"
+      - "127.0.0.1:${SS_PORT}:${SS_PORT}/tcp"
+      - "127.0.0.1:${SS_PORT}:${SS_PORT}/udp"
+      - "127.0.0.1:${SOCKS_PORT}:${SOCKS_PORT}/tcp"
+      - "127.0.0.1:${SOCKS_PORT}:${SOCKS_PORT}/udp"
     volumes:
       - ./config:/opt/zapret2/config
       - ./lua:/opt/zapret2/lua
